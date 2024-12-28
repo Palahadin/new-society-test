@@ -29,7 +29,7 @@ namespace cAlgo.Robots
         protected override void OnTick()
         {
             // Only process on bar close
-            if (!Bars.LastBar.IsComplete)
+            if (!Bars.LastBarIndex.Equals(Bars.Count - 1))
                 return;
 
             // Find recent structure points
@@ -38,8 +38,8 @@ namespace cAlgo.Robots
             
             for (int i = 1; i <= LookbackPeriods; i++)
             {
-                highestHigh = Math.Max(highestHigh, Bars.HighPrices[i]);
-                lowestLow = Math.Min(lowestLow, Bars.LowPrices[i]);
+                highestHigh = Math.Max(highestHigh, Bars.High[i]);
+                lowestLow = Math.Min(lowestLow, Bars.Low[i]);
             }
 
             // Check for Break of Structure
@@ -70,9 +70,9 @@ namespace cAlgo.Robots
 
             for (int i = 1; i <= LookbackPeriods; i++)
             {
-                if (Bars.LowPrices[i] > previousLow)
+                if (Bars.Low[i] > previousLow)
                     higherLows++;
-                previousLow = Bars.LowPrices[i];
+                previousLow = Bars.Low[i];
             }
 
             return higherLows >= LookbackPeriods / 2;
@@ -86,9 +86,9 @@ namespace cAlgo.Robots
 
             for (int i = 1; i <= LookbackPeriods; i++)
             {
-                if (Bars.HighPrices[i] < previousHigh)
+                if (Bars.High[i] < previousHigh)
                     lowerHighs++;
-                previousHigh = Bars.HighPrices[i];
+                previousHigh = Bars.High[i];
             }
 
             return lowerHighs >= LookbackPeriods / 2;
@@ -116,9 +116,9 @@ namespace cAlgo.Robots
         {
             // Place stop loss beyond the structure
             if (tradeType == TradeType.Buy)
-                return Math.Min(Bars.LowPrices[1], Bars.LowPrices[2]) - (10 * pipSize);
+                return Math.Min(Bars.Low[1], Bars.Low[2]) - (10 * pipSize);
             else
-                return Math.Max(Bars.HighPrices[1], Bars.HighPrices[2]) + (10 * pipSize);
+                return Math.Max(Bars.High[1], Bars.High[2]) + (10 * pipSize);
         }
 
         private double CalculateTakeProfit(TradeType tradeType)
@@ -146,7 +146,8 @@ namespace cAlgo.Robots
 
         private bool HasOpenPosition()
         {
-            return Positions.Find("BOS Buy").Length > 0 || Positions.Find("BOS Sell").Length > 0;
+            return Positions.FindAll("BOS Buy", Symbol.Name).Length > 0 || 
+                   Positions.FindAll("BOS Sell", Symbol.Name).Length > 0;
         }
     }
 }
