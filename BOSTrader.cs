@@ -8,8 +8,14 @@ namespace cAlgo.Robots
     [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.None)]
     public class BOSTradingBot : Robot
     {
-        // Fixed lot size instead of risk percentage
-        private const double FIXED_LOT_SIZE = 0.01;
+        [Parameter("Volume (Lots)", DefaultValue = 0.01)]
+        public double Volume { get; set; }
+
+        [Parameter("Stop Loss (Pips)", DefaultValue = 20)]
+        public double StopLossPips { get; set; }
+
+        [Parameter("Take Profit (Pips)", DefaultValue = 40)]
+        public double TakeProfitPips { get; set; }
 
         [Parameter("Lookback Periods", DefaultValue = 10)]
         public int LookbackPeriods { get; set; }
@@ -96,40 +102,18 @@ namespace cAlgo.Robots
 
         private void ExecuteBuyOrder()
         {
-            double stopLoss = CalculateStopLoss(TradeType.Buy);
-            double takeProfit = CalculateTakeProfit(TradeType.Buy);
+            double stopLoss = Symbol.Bid - (StopLossPips * pipSize);
+            double takeProfit = Symbol.Bid + (TakeProfitPips * pipSize);
 
-            ExecuteMarketOrder(TradeType.Buy, Symbol.Name, FIXED_LOT_SIZE, "BOS Buy", stopLoss, takeProfit);
+            ExecuteMarketOrder(TradeType.Buy, Symbol.Name, Volume, "BOS Buy", stopLoss, takeProfit);
         }
 
         private void ExecuteSellOrder()
         {
-            double stopLoss = CalculateStopLoss(TradeType.Sell);
-            double takeProfit = CalculateTakeProfit(TradeType.Sell);
+            double stopLoss = Symbol.Ask + (StopLossPips * pipSize);
+            double takeProfit = Symbol.Ask - (TakeProfitPips * pipSize);
 
-            ExecuteMarketOrder(TradeType.Sell, Symbol.Name, FIXED_LOT_SIZE, "BOS Sell", stopLoss, takeProfit);
-        }
-
-        private double CalculateStopLoss(TradeType tradeType)
-        {
-            // Place stop loss beyond the structure
-            if (tradeType == TradeType.Buy)
-                return Math.Min(MarketSeries.Low.Last(1), MarketSeries.Low.Last(2)) - (10 * pipSize);
-            else
-                return Math.Max(MarketSeries.High.Last(1), MarketSeries.High.Last(2)) + (10 * pipSize);
-        }
-
-        private double CalculateTakeProfit(TradeType tradeType)
-        {
-            // Risk:Reward ratio of 1:2
-            double currentPrice = tradeType == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
-            double stopLoss = CalculateStopLoss(tradeType);
-            double risk = Math.Abs(currentPrice - stopLoss);
-
-            if (tradeType == TradeType.Buy)
-                return currentPrice + (2 * risk);
-            else
-                return currentPrice - (2 * risk);
+            ExecuteMarketOrder(TradeType.Sell, Symbol.Name, Volume, "BOS Sell", stopLoss, takeProfit);
         }
 
         private bool HasOpenPosition()
