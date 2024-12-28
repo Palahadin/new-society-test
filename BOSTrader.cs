@@ -102,18 +102,16 @@ namespace cAlgo.Robots
 
         private void ExecuteBuyOrder()
         {
-            double pipsInPoints = Symbol.DigitsMultiplier();
-            double stopLoss = Symbol.Bid - (StopLossPips * 10 * Symbol.PipSize);
-            double takeProfit = Symbol.Bid + (TakeProfitPips * 10 * Symbol.PipSize);
+            double stopLoss = Symbol.Bid - (StopLossPips * Symbol.PipSize);
+            double takeProfit = Symbol.Bid + (TakeProfitPips * Symbol.PipSize);
 
             ExecuteMarketOrder(TradeType.Buy, Symbol.Name, Volume, "BOS Buy", stopLoss, takeProfit);
         }
 
         private void ExecuteSellOrder()
         {
-            double pipsInPoints = Symbol.DigitsMultiplier();
-            double stopLoss = Symbol.Ask + (StopLossPips * 10 * Symbol.PipSize);
-            double takeProfit = Symbol.Ask - (TakeProfitPips * 10 * Symbol.PipSize);
+            double stopLoss = Symbol.Ask + (StopLossPips * Symbol.PipSize);
+            double takeProfit = Symbol.Ask - (TakeProfitPips * Symbol.PipSize);
 
             ExecuteMarketOrder(TradeType.Sell, Symbol.Name, Volume, "BOS Sell", stopLoss, takeProfit);
         }
