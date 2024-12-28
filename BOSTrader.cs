@@ -8,8 +8,8 @@ namespace cAlgo.Robots
     [Robot(TimeZone = TimeZones.UTC, AccessRights = AccessRights.None)]
     public class BOSTradingBot : Robot
     {
-        [Parameter("Risk Percentage", DefaultValue = 1.0)]
-        public double RiskPercentage { get; set; }
+        // Fixed lot size instead of risk percentage
+        private const double FIXED_LOT_SIZE = 0.01;
 
         [Parameter("Lookback Periods", DefaultValue = 10)]
         public int LookbackPeriods { get; set; }
@@ -98,18 +98,16 @@ namespace cAlgo.Robots
         {
             double stopLoss = CalculateStopLoss(TradeType.Buy);
             double takeProfit = CalculateTakeProfit(TradeType.Buy);
-            double volume = CalculatePositionSize(stopLoss, TradeType.Buy);
 
-            ExecuteMarketOrder(TradeType.Buy, Symbol.Name, volume, "BOS Buy", stopLoss, takeProfit);
+            ExecuteMarketOrder(TradeType.Buy, Symbol.Name, FIXED_LOT_SIZE, "BOS Buy", stopLoss, takeProfit);
         }
 
         private void ExecuteSellOrder()
         {
             double stopLoss = CalculateStopLoss(TradeType.Sell);
             double takeProfit = CalculateTakeProfit(TradeType.Sell);
-            double volume = CalculatePositionSize(stopLoss, TradeType.Sell);
 
-            ExecuteMarketOrder(TradeType.Sell, Symbol.Name, volume, "BOS Sell", stopLoss, takeProfit);
+            ExecuteMarketOrder(TradeType.Sell, Symbol.Name, FIXED_LOT_SIZE, "BOS Sell", stopLoss, takeProfit);
         }
 
         private double CalculateStopLoss(TradeType tradeType)
@@ -132,16 +130,6 @@ namespace cAlgo.Robots
                 return currentPrice + (2 * risk);
             else
                 return currentPrice - (2 * risk);
-        }
-
-        private double CalculatePositionSize(double stopLoss, TradeType tradeType)
-        {
-            double currentPrice = tradeType == TradeType.Buy ? Symbol.Ask : Symbol.Bid;
-            double riskAmount = Account.Balance * (RiskPercentage / 100);
-            double pipValue = Symbol.PipValue;
-            double pips = Math.Abs(currentPrice - stopLoss) / pipSize;
-
-            return Math.Round(riskAmount / (pips * pipValue), 2);
         }
 
         private bool HasOpenPosition()
