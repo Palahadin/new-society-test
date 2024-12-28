@@ -29,7 +29,7 @@ namespace cAlgo.Robots
         protected override void OnTick()
         {
             // Only process on bar close
-            if (!Bars.LastBarIndex.Equals(Bars.Count - 1))
+            if (MarketSeries.Close.Last(1) == 0)
                 return;
 
             // Find recent structure points
@@ -38,8 +38,8 @@ namespace cAlgo.Robots
             
             for (int i = 1; i <= LookbackPeriods; i++)
             {
-                highestHigh = Math.Max(highestHigh, Bars.High[i]);
-                lowestLow = Math.Min(lowestLow, Bars.Low[i]);
+                highestHigh = Math.Max(highestHigh, MarketSeries.High.Last(i));
+                lowestLow = Math.Min(lowestLow, MarketSeries.Low.Last(i));
             }
 
             // Check for Break of Structure
@@ -70,9 +70,9 @@ namespace cAlgo.Robots
 
             for (int i = 1; i <= LookbackPeriods; i++)
             {
-                if (Bars.Low[i] > previousLow)
+                if (MarketSeries.Low.Last(i) > previousLow)
                     higherLows++;
-                previousLow = Bars.Low[i];
+                previousLow = MarketSeries.Low.Last(i);
             }
 
             return higherLows >= LookbackPeriods / 2;
@@ -86,9 +86,9 @@ namespace cAlgo.Robots
 
             for (int i = 1; i <= LookbackPeriods; i++)
             {
-                if (Bars.High[i] < previousHigh)
+                if (MarketSeries.High.Last(i) < previousHigh)
                     lowerHighs++;
-                previousHigh = Bars.High[i];
+                previousHigh = MarketSeries.High.Last(i);
             }
 
             return lowerHighs >= LookbackPeriods / 2;
@@ -116,9 +116,9 @@ namespace cAlgo.Robots
         {
             // Place stop loss beyond the structure
             if (tradeType == TradeType.Buy)
-                return Math.Min(Bars.Low[1], Bars.Low[2]) - (10 * pipSize);
+                return Math.Min(MarketSeries.Low.Last(1), MarketSeries.Low.Last(2)) - (10 * pipSize);
             else
-                return Math.Max(Bars.High[1], Bars.High[2]) + (10 * pipSize);
+                return Math.Max(MarketSeries.High.Last(1), MarketSeries.High.Last(2)) + (10 * pipSize);
         }
 
         private double CalculateTakeProfit(TradeType tradeType)
