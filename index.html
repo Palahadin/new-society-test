@@ -32,14 +32,58 @@
             line-height: 1.6;
             color: #666;
         }
+        .contact-info {
+            background-color: #f8f8f8;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .updates-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .updates-list li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .updates-list li:before {
+            content: '»';
+            position: absolute;
+            left: 0;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <h1>Welcome to New Society</h1>
     <p>This is a simple test page for our project.</p>
+    
     <section>
         <h2>About Us</h2>
         <p>We're working on building something amazing!</p>
+    </section>
+
+    <section>
+        <h2>Our Mission</h2>
+        <p>To create innovative solutions that make a positive impact on society through technology and collaboration.</p>
+    </section>
+
+    <section>
+        <h2>Contact Information</h2>
+        <div class="contact-info">
+            <p>Email: contact@newsociety.test</p>
+            <p>Phone: (555) 123-4567</p>
+            <p>Address: 123 Innovation Street, Tech City, TC 12345</p>
+        </div>
+    </section>
+
+    <section>
+        <h2>Latest Updates</h2>
+        <ul class="updates-list">
+            <li>Launched our new website</li>
+            <li>Opened applications for community membership</li>
+            <li>Planning our first virtual meetup</li>
+        </ul>
     </section>
 </body>
 </html>
